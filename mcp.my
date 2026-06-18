@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "ranger-mcp-server": {
+      "command": "uvx",
+      "args": ["--from", "git+>https://github.com/frothkoetter/ranger-mcp-server.git@master", "run-server"],
+      "env": {
+        "RANGER_GATEWAY_URL": "https://se-aws-edl-gateway.se-sandb.a465-9q4k.cloudera.site/se-aws-edl/cdp-proxy-api/ranger/service",
+        "RANGER_USER": "frothkoetter",
+        "RANGER_PASS": "SAX201linga"
+      }
+    }
+  }
+}
