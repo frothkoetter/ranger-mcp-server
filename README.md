@@ -44,7 +44,7 @@ git clone <repo-url>
 cd ranger-mcp-server
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e .
+python -m pip install -e ".[dev]"
 ```
 
 ### Cursor / Claude Desktop MCP config

@@ -12,6 +12,13 @@ dependencies = [
   "mcp>=1.1.2",
 ]
 
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0",
+  "pytest-httpserver>=1.0.10",
+  "ruff>=0.6.0",
+]
+
 [project.scripts]
 run-server = "ranger_mcp_server.server:main"
 
