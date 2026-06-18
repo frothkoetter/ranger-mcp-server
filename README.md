@@ -1,6 +1,6 @@
 # Ranger MCP Server
 
-Model Context Protocol server for **Apache Ranger** on CDP — manage access policies, masking, tag-based policies, roles, users, and groups via agentic workflows.
+Model Context Protocol server for **Apache Ranger** on CDP — manage access policies, masking, tag-based policies, roles, users, groups, and audit logs via agentic workflows.
 
 ## Features
 
@@ -9,6 +9,7 @@ Model Context Protocol server for **Apache Ranger** on CDP — manage access pol
 - **Access, masking & tag-based policies** — convenience builders plus raw JSON for full control
 - **Identity management** — users, groups, roles and role membership
 - **Tag metadata** — tag definitions, instances, tagged resources
+- **Audit logs** — search data-access audits (allowed/denied) and admin/transaction logs (policy changes)
 - **Automatic retries** — exponential backoff on transient errors
 
 ### MCP Tools
@@ -34,6 +35,15 @@ Model Context Protocol server for **Apache Ranger** on CDP — manage access pol
 **Tags**
 - `list_tag_definitions`, `get_tag_definition`, `list_tag_instances`, `list_tagged_resources`
 - `search_tag_based_policies`
+
+**Audits**
+- `search_access_audits` — data-access audit logs (who accessed what, allowed/denied); filters: `request_user`, `repo_name`, `resource_path`, `action`, `access_result`, `start_date`/`end_date` (MM/DD/YYYY)
+- `count_access_audits` — count matching access audit records
+- `search_admin_audit_logs` — policy/config change logs (transaction audit); filters: `object_name`, `action`, `updated_by`, date range
+- `count_admin_audit_logs` — count matching admin audit records
+- `get_admin_audit_log` — fetch a single admin audit entry by id
+
+Set `use_assets_endpoint=true` on `search_access_audits` if your cluster uses the Ranger UI path (`/assets/accessAudit`) instead of `/xaudit/access_audit`.
 
 ## Setup
 
@@ -111,6 +121,9 @@ Direct Ranger Admin (inside cluster): `https://<ranger-host>:6182/service`
 - "Create a masking policy on column ssn in hr.employees"
 - "Add group analysts to role finance_role"
 - "Show tag-based policies for tag PII on cm_tag"
+- "Search access audits for user alice on cm_hive since 06/01/2026"
+- "Show denied access audits on finance.customers in the last day"
+- "Who changed the finance-read policy? Search admin audit logs"
 
 ## License
 
