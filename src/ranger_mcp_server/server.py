@@ -440,6 +440,127 @@ def create_server(ranger: RangerClient) -> FastMCP:
             )
         )
 
+    # ── Audits ─────────────────────────────────────────────────────────────
+
+    @app.tool()
+    async def search_access_audits(
+        page_size: int = 25,
+        start_index: int = 0,
+        sort_by: str = "eventTime",
+        sort_type: str = "desc",
+        request_user: Optional[str] = None,
+        repo_name: Optional[str] = None,
+        resource_path: Optional[str] = None,
+        action: Optional[str] = None,
+        access_result: Optional[int] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        exclude_service_user: Optional[bool] = None,
+        use_assets_endpoint: bool = False,
+    ) -> Any:
+        """Search Ranger data-access audit logs (allowed/denied resource access).
+
+        access_result: 1=allowed, 0=denied (Ranger enum).
+        start_date/end_date: MM/DD/YYYY (same format as Ranger UI).
+        use_assets_endpoint: use /assets/accessAudit instead of /xaudit/access_audit.
+        """
+        return _redact(
+            ranger.search_access_audits(
+                page_size=page_size,
+                start_index=start_index,
+                sort_by=sort_by,
+                sort_type=sort_type,
+                request_user=request_user,
+                repo_name=repo_name,
+                resource_path=resource_path,
+                action=action,
+                access_result=access_result,
+                start_date=start_date,
+                end_date=end_date,
+                exclude_service_user=exclude_service_user,
+                use_assets_endpoint=use_assets_endpoint,
+            )
+        )
+
+    @app.tool()
+    async def count_access_audits(
+        request_user: Optional[str] = None,
+        repo_name: Optional[str] = None,
+        resource_path: Optional[str] = None,
+        action: Optional[str] = None,
+        access_result: Optional[int] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        exclude_service_user: Optional[bool] = None,
+    ) -> Any:
+        """Count Ranger data-access audit records matching filters."""
+        return _redact(
+            ranger.count_access_audits(
+                request_user=request_user,
+                repo_name=repo_name,
+                resource_path=resource_path,
+                action=action,
+                access_result=access_result,
+                start_date=start_date,
+                end_date=end_date,
+                exclude_service_user=exclude_service_user,
+            )
+        )
+
+    @app.tool()
+    async def search_admin_audit_logs(
+        page_size: int = 25,
+        start_index: int = 0,
+        sort_by: Optional[str] = None,
+        sort_type: Optional[str] = None,
+        object_name: Optional[str] = None,
+        action: Optional[str] = None,
+        updated_by: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> Any:
+        """Search Ranger admin/transaction audit logs (policy and config changes).
+
+        start_date/end_date: MM/DD/YYYY.
+        """
+        return _redact(
+            ranger.search_admin_audit_logs(
+                page_size=page_size,
+                start_index=start_index,
+                sort_by=sort_by,
+                sort_type=sort_type,
+                object_name=object_name,
+                action=action,
+                updated_by=updated_by,
+                start_date=start_date,
+                end_date=end_date,
+            )
+        )
+
+    @app.tool()
+    async def count_admin_audit_logs(
+        object_name: Optional[str] = None,
+        action: Optional[str] = None,
+        updated_by: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> Any:
+        """Count Ranger admin/transaction audit records matching filters."""
+        return _redact(
+            ranger.count_admin_audit_logs(
+                object_name=object_name,
+                action=action,
+                updated_by=updated_by,
+                start_date=start_date,
+                end_date=end_date,
+            )
+        )
+
+    @app.tool()
+    async def get_admin_audit_log(log_id: int) -> Dict[str, Any]:
+        """Get a single Ranger admin/transaction audit record by id."""
+        return _redact(ranger.get_admin_audit_log(log_id))
+
     return app
 
 

@@ -193,3 +193,72 @@ def test_get_group_by_name(ranger: RangerClient, httpserver: HTTPServer) -> None
     )
     result = ranger.get_group_by_name("analysts")
     assert result["id"] == 2
+
+
+# ── Access & admin audits ────────────────────────────────────────────────
+
+
+def test_search_access_audits(ranger: RangerClient, httpserver: HTTPServer) -> None:
+    httpserver.expect_request("/xaudit/access_audit", method="GET").respond_with_json(
+        {
+            "vXAccessAudits": [
+                {
+                    "id": 100,
+                    "requestUser": "alice",
+                    "repoName": "cm_hive",
+                    "accessResult": 1,
+                    "resourcePath": "finance/customers",
+                    "action": "select",
+                }
+            ],
+            "totalCount": 1,
+        }
+    )
+    result = ranger.search_access_audits(request_user="alice", repo_name="cm_hive")
+    assert result["vXAccessAudits"][0]["requestUser"] == "alice"
+
+
+def test_search_access_audits_assets_endpoint(ranger: RangerClient, httpserver: HTTPServer) -> None:
+    httpserver.expect_request("/assets/accessAudit", method="GET").respond_with_json(
+        {"vXAccessAudits": [], "totalCount": 0}
+    )
+    result = ranger.search_access_audits(use_assets_endpoint=True, start_date="06/01/2026")
+    assert result["totalCount"] == 0
+
+
+def test_count_access_audits(ranger: RangerClient, httpserver: HTTPServer) -> None:
+    httpserver.expect_request("/xaudit/access_audit/count", method="GET").respond_with_json({"value": 42})
+    result = ranger.count_access_audits(repo_name="cm_hive", access_result=0)
+    assert result["value"] == 42
+
+
+def test_search_admin_audit_logs(ranger: RangerClient, httpserver: HTTPServer) -> None:
+    httpserver.expect_request("/xaudit/trx_log", method="GET").respond_with_json(
+        {
+            "vXTrxLogs": [
+                {
+                    "id": 7,
+                    "objectName": "finance-read",
+                    "action": "update",
+                    "updatedBy": "admin",
+                }
+            ],
+            "totalCount": 1,
+        }
+    )
+    result = ranger.search_admin_audit_logs(object_name="finance-read")
+    assert result["vXTrxLogs"][0]["action"] == "update"
+
+
+def test_count_admin_audit_logs(ranger: RangerClient, httpserver: HTTPServer) -> None:
+    httpserver.expect_request("/xaudit/trx_log/count", method="GET").respond_with_json({"value": 3})
+    result = ranger.count_admin_audit_logs(updated_by="admin")
+    assert result["value"] == 3
+
+
+def test_get_admin_audit_log(ranger: RangerClient, httpserver: HTTPServer) -> None:
+    httpserver.expect_request("/xaudit/trx_log/7", method="GET").respond_with_json(
+        {"id": 7, "objectName": "finance-read", "action": "update"}
+    )
+    result = ranger.get_admin_audit_log(7)
+    assert result["id"] == 7

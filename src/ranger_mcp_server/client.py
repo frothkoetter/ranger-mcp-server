@@ -26,6 +26,8 @@ _RETRYABLE = (RangerError, requests.ConnectionError, requests.Timeout)
 V2 = "public/v2/api"
 TAGS = "tags"
 XUSERS = "xusers"
+XAUDIT = "xaudit"
+ASSETS = "assets"
 
 
 class RangerClient:
@@ -271,3 +273,181 @@ class RangerClient:
         if tag_name:
             params["resource:tag"] = tag_name
         return self._get(f"{V2}/service/{tag_service_name}/policy", params=params)
+
+    def _access_audit_params(
+        self,
+        *,
+        page_size: Optional[int] = None,
+        start_index: Optional[int] = None,
+        sort_by: Optional[str] = None,
+        sort_type: Optional[str] = None,
+        request_user: Optional[str] = None,
+        repo_name: Optional[str] = None,
+        resource_path: Optional[str] = None,
+        action: Optional[str] = None,
+        access_result: Optional[int] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        exclude_service_user: Optional[bool] = None,
+    ) -> Dict[str, Any]:
+        params: Dict[str, Any] = {}
+        if page_size is not None:
+            params["pageSize"] = page_size
+        if start_index is not None:
+            params["startIndex"] = start_index
+        if sort_by:
+            params["sortBy"] = sort_by
+        if sort_type:
+            params["sortType"] = sort_type
+        if request_user:
+            params["requestUser"] = request_user
+        if repo_name:
+            params["repoName"] = repo_name
+        if resource_path:
+            params["resourcePath"] = resource_path
+        if action:
+            params["action"] = action
+        if access_result is not None:
+            params["accessResult"] = access_result
+        if start_date:
+            params["startDate"] = start_date
+        if end_date:
+            params["endDate"] = end_date
+        if exclude_service_user is not None:
+            params["excludeServiceUser"] = str(exclude_service_user).lower()
+        return params
+
+    def search_access_audits(
+        self,
+        page_size: int = 25,
+        start_index: int = 0,
+        sort_by: str = "eventTime",
+        sort_type: str = "desc",
+        request_user: Optional[str] = None,
+        repo_name: Optional[str] = None,
+        resource_path: Optional[str] = None,
+        action: Optional[str] = None,
+        access_result: Optional[int] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        exclude_service_user: Optional[bool] = None,
+        use_assets_endpoint: bool = False,
+    ) -> Any:
+        params = self._access_audit_params(
+            page_size=page_size,
+            start_index=start_index,
+            sort_by=sort_by,
+            sort_type=sort_type,
+            request_user=request_user,
+            repo_name=repo_name,
+            resource_path=resource_path,
+            action=action,
+            access_result=access_result,
+            start_date=start_date,
+            end_date=end_date,
+            exclude_service_user=exclude_service_user,
+        )
+        path = f"{ASSETS}/accessAudit" if use_assets_endpoint else f"{XAUDIT}/access_audit"
+        return self._get(path, params=params)
+
+    def count_access_audits(
+        self,
+        request_user: Optional[str] = None,
+        repo_name: Optional[str] = None,
+        resource_path: Optional[str] = None,
+        action: Optional[str] = None,
+        access_result: Optional[int] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        exclude_service_user: Optional[bool] = None,
+    ) -> Any:
+        params = self._access_audit_params(
+            request_user=request_user,
+            repo_name=repo_name,
+            resource_path=resource_path,
+            action=action,
+            access_result=access_result,
+            start_date=start_date,
+            end_date=end_date,
+            exclude_service_user=exclude_service_user,
+        )
+        return self._get(f"{XAUDIT}/access_audit/count", params=params)
+
+    def _admin_audit_params(
+        self,
+        *,
+        page_size: Optional[int] = None,
+        start_index: Optional[int] = None,
+        sort_by: Optional[str] = None,
+        sort_type: Optional[str] = None,
+        object_name: Optional[str] = None,
+        action: Optional[str] = None,
+        updated_by: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        params: Dict[str, Any] = {}
+        if page_size is not None:
+            params["pageSize"] = page_size
+        if start_index is not None:
+            params["startIndex"] = start_index
+        if sort_by:
+            params["sortBy"] = sort_by
+        if sort_type:
+            params["sortType"] = sort_type
+        if object_name:
+            params["objectName"] = object_name
+        if action:
+            params["action"] = action
+        if updated_by:
+            params["updatedBy"] = updated_by
+        if start_date:
+            params["startDate"] = start_date
+        if end_date:
+            params["endDate"] = end_date
+        return params
+
+    def search_admin_audit_logs(
+        self,
+        page_size: int = 25,
+        start_index: int = 0,
+        sort_by: Optional[str] = None,
+        sort_type: Optional[str] = None,
+        object_name: Optional[str] = None,
+        action: Optional[str] = None,
+        updated_by: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> Any:
+        params = self._admin_audit_params(
+            page_size=page_size,
+            start_index=start_index,
+            sort_by=sort_by,
+            sort_type=sort_type,
+            object_name=object_name,
+            action=action,
+            updated_by=updated_by,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        return self._get(f"{XAUDIT}/trx_log", params=params)
+
+    def count_admin_audit_logs(
+        self,
+        object_name: Optional[str] = None,
+        action: Optional[str] = None,
+        updated_by: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> Any:
+        params = self._admin_audit_params(
+            object_name=object_name,
+            action=action,
+            updated_by=updated_by,
+            start_date=start_date,
+            end_date=end_date,
+        )
+        return self._get(f"{XAUDIT}/trx_log/count", params=params)
+
+    def get_admin_audit_log(self, log_id: int) -> Dict[str, Any]:
+        return self._get(f"{XAUDIT}/trx_log/{log_id}")
