@@ -199,7 +199,7 @@ def test_get_group_by_name(ranger: RangerClient, httpserver: HTTPServer) -> None
 
 
 def test_search_access_audits(ranger: RangerClient, httpserver: HTTPServer) -> None:
-    httpserver.expect_request("/xaudit/access_audit", method="GET").respond_with_json(
+    httpserver.expect_request("/assets/accessAudit", method="GET").respond_with_json(
         {
             "vXAccessAudits": [
                 {
@@ -218,18 +218,26 @@ def test_search_access_audits(ranger: RangerClient, httpserver: HTTPServer) -> N
     assert result["vXAccessAudits"][0]["requestUser"] == "alice"
 
 
-def test_search_access_audits_assets_endpoint(ranger: RangerClient, httpserver: HTTPServer) -> None:
-    httpserver.expect_request("/assets/accessAudit", method="GET").respond_with_json(
+def test_search_access_audits_xaudit_endpoint(ranger: RangerClient, httpserver: HTTPServer) -> None:
+    httpserver.expect_request("/xaudit/access_audit", method="GET").respond_with_json(
         {"vXAccessAudits": [], "totalCount": 0}
     )
-    result = ranger.search_access_audits(use_assets_endpoint=True, start_date="06/01/2026")
+    result = ranger.search_access_audits(use_assets_endpoint=False, start_date="06/01/2026")
     assert result["totalCount"] == 0
 
 
 def test_count_access_audits(ranger: RangerClient, httpserver: HTTPServer) -> None:
-    httpserver.expect_request("/xaudit/access_audit/count", method="GET").respond_with_json({"value": 42})
+    httpserver.expect_request("/assets/accessAudit", method="GET").respond_with_json(
+        {"vXAccessAudits": [], "totalCount": 42}
+    )
     result = ranger.count_access_audits(repo_name="cm_hive", access_result=0)
     assert result["value"] == 42
+
+
+def test_count_access_audits_xaudit_endpoint(ranger: RangerClient, httpserver: HTTPServer) -> None:
+    httpserver.expect_request("/xaudit/access_audit/count", method="GET").respond_with_json({"value": 7})
+    result = ranger.count_access_audits(repo_name="cm_hive", use_assets_endpoint=False)
+    assert result["value"] == 7
 
 
 def test_search_admin_audit_logs(ranger: RangerClient, httpserver: HTTPServer) -> None:

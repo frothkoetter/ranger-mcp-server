@@ -7,6 +7,18 @@ POLICY_TYPE_MASKING = 1
 POLICY_TYPE_ROW_FILTER = 2
 
 
+def normalize_audit_resource_path(resource_path: Optional[str]) -> Optional[str]:
+    """Convert Hive-style db.table paths to Ranger audit format (db/table)."""
+    if not resource_path:
+        return resource_path
+    path = resource_path.strip()
+    if "/" in path:
+        return path
+    if "." in path:
+        return path.replace(".", "/")
+    return path
+
+
 def parse_csv(value: Optional[str]) -> List[str]:
     if not value:
         return []

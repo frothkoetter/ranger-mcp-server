@@ -11,6 +11,7 @@ from ranger_mcp_server.policy_helpers import (
     build_masking_policy_payload,
     build_resource_map,
     build_tag_policy_payload,
+    normalize_audit_resource_path,
     parse_csv,
     parse_json_object,
 )
@@ -19,6 +20,13 @@ from ranger_mcp_server.policy_helpers import (
 def test_parse_csv_empty() -> None:
     assert parse_csv("") == []
     assert parse_csv(None) == []
+
+
+def test_normalize_audit_resource_path() -> None:
+    assert normalize_audit_resource_path("db.table") == "db/table"
+    assert normalize_audit_resource_path("db/table") == "db/table"
+    assert normalize_audit_resource_path("mart_portfolio_risk_summary") == "mart_portfolio_risk_summary"
+    assert normalize_audit_resource_path(None) is None
 
 
 def test_parse_json_object() -> None:

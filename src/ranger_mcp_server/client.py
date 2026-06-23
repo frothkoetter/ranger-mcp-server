@@ -5,6 +5,8 @@ from typing import Any, Dict, List, Optional
 import requests
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
+from .policy_helpers import normalize_audit_resource_path
+
 
 class RangerError(Exception):
     def __init__(self, message: str, status_code: Optional[int] = None, response_body: Optional[str] = None):
@@ -304,7 +306,7 @@ class RangerClient:
         if repo_name:
             params["repoName"] = repo_name
         if resource_path:
-            params["resourcePath"] = resource_path
+            params["resourcePath"] = normalize_audit_resource_path(resource_path)
         if action:
             params["action"] = action
         if access_result is not None:
@@ -331,7 +333,7 @@ class RangerClient:
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
         exclude_service_user: Optional[bool] = None,
-        use_assets_endpoint: bool = False,
+        use_assets_endpoint: bool = True,
     ) -> Any:
         params = self._access_audit_params(
             page_size=page_size,
@@ -360,7 +362,23 @@ class RangerClient:
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
         exclude_service_user: Optional[bool] = None,
+        use_assets_endpoint: bool = True,
     ) -> Any:
+        if use_assets_endpoint:
+            result = self.search_access_audits(
+                page_size=1,
+                start_index=0,
+                request_user=request_user,
+                repo_name=repo_name,
+                resource_path=resource_path,
+                action=action,
+                access_result=access_result,
+                start_date=start_date,
+                end_date=end_date,
+                exclude_service_user=exclude_service_user,
+                use_assets_endpoint=True,
+            )
+            return {"value": result.get("totalCount", 0)}
         params = self._access_audit_params(
             request_user=request_user,
             repo_name=repo_name,

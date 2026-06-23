@@ -37,13 +37,13 @@ Model Context Protocol server for **Apache Ranger** on CDP — manage access pol
 - `search_tag_based_policies`
 
 **Audits**
-- `search_access_audits` — data-access audit logs (who accessed what, allowed/denied); filters: `request_user`, `repo_name`, `resource_path`, `action`, `access_result`, `start_date`/`end_date` (MM/DD/YYYY)
+- `search_access_audits` — data-access audit logs (who accessed what, allowed/denied); filters: `request_user`, `repo_name`, `resource_path` (`db/table` or `db.table`), `action`, `access_result`, `start_date`/`end_date` (MM/DD/YYYY)
 - `count_access_audits` — count matching access audit records
 - `search_admin_audit_logs` — policy/config change logs (transaction audit); filters: `object_name`, `action`, `updated_by`, date range
 - `count_admin_audit_logs` — count matching admin audit records
 - `get_admin_audit_log` — fetch a single admin audit entry by id
 
-Set `use_assets_endpoint=true` on `search_access_audits` if your cluster uses the Ranger UI path (`/assets/accessAudit`) instead of `/xaudit/access_audit`.
+Access audit search defaults to `/assets/accessAudit` (Ranger UI path), which honors filters on CDP. Set `use_assets_endpoint=false` to use `/xaudit/access_audit` instead. Hive table paths use slashes (`db/table`); `db.table` is converted automatically.
 
 ## Setup
 

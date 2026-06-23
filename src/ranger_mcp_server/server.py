@@ -456,13 +456,15 @@ def create_server(ranger: RangerClient) -> FastMCP:
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
         exclude_service_user: Optional[bool] = None,
-        use_assets_endpoint: bool = False,
+        use_assets_endpoint: bool = True,
     ) -> Any:
         """Search Ranger data-access audit logs (allowed/denied resource access).
 
         access_result: 1=allowed, 0=denied (Ranger enum).
         start_date/end_date: MM/DD/YYYY (same format as Ranger UI).
-        use_assets_endpoint: use /assets/accessAudit instead of /xaudit/access_audit.
+        resource_path: Ranger format db/table (db.table is converted automatically).
+        use_assets_endpoint: default true — /assets/accessAudit honors filters on CDP;
+          /xaudit/access_audit ignores most filters on many clusters.
         """
         return _redact(
             ranger.search_access_audits(
@@ -492,8 +494,12 @@ def create_server(ranger: RangerClient) -> FastMCP:
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
         exclude_service_user: Optional[bool] = None,
+        use_assets_endpoint: bool = True,
     ) -> Any:
-        """Count Ranger data-access audit records matching filters."""
+        """Count Ranger data-access audit records matching filters.
+
+        Uses /assets/accessAudit by default (see search_access_audits).
+        """
         return _redact(
             ranger.count_access_audits(
                 request_user=request_user,
@@ -504,6 +510,7 @@ def create_server(ranger: RangerClient) -> FastMCP:
                 start_date=start_date,
                 end_date=end_date,
                 exclude_service_user=exclude_service_user,
+                use_assets_endpoint=use_assets_endpoint,
             )
         )
 
