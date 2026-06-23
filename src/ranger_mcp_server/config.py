@@ -37,4 +37,8 @@ class ServerConfig:
                 "RANGER_GATEWAY_URL must be set.\n"
                 "Example: RANGER_GATEWAY_URL=https://<host>/<topology>/cdp-proxy-api/ranger/service"
             )
-        return self.ranger_gateway_url.rstrip("/")
+        base = self.ranger_gateway_url.rstrip("/")
+        # CDP Knox URLs often stop at .../ranger; the REST API lives under .../ranger/service.
+        if base.endswith("/ranger"):
+            base = f"{base}/service"
+        return base

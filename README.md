@@ -98,7 +98,7 @@ python -m pip install -e ".[dev]"
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `RANGER_GATEWAY_URL` | Yes | Full Knox Ranger API base (ends with `/ranger/service`) |
+| `RANGER_GATEWAY_URL` | Yes | Knox Ranger API base (`.../ranger` or `.../ranger/service`; `/service` is appended automatically if missing) |
 | `RANGER_USER` / `RANGER_PASS` | Yes* | Basic auth credentials |
 | `KNOX_TOKEN` / `KNOX_COOKIE` | Alt | Knox JWT alternatives |
 | `RANGER_VERIFY_SSL` | No | Default `true` |
